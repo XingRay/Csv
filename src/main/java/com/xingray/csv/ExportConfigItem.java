@@ -13,6 +13,7 @@ public class ExportConfigItem {
     private String exportName;
     private int dateType;
     private String format;
+    private String zoneId;
     private String defaultValue;
 
     public ExportConfigItem() {
@@ -34,6 +35,17 @@ public class ExportConfigItem {
         this.exportName = exportName;
         this.dateType = dateType;
         this.format = format;
+        this.defaultValue = defaultValue;
+    }
+
+    public ExportConfigItem(int index, boolean enable, String fieldName, String exportName, int dateType, String format, String zoneId, String defaultValue) {
+        this.index = index;
+        this.enable = enable;
+        this.fieldName = fieldName;
+        this.exportName = exportName;
+        this.dateType = dateType;
+        this.format = format;
+        this.zoneId = zoneId;
         this.defaultValue = defaultValue;
     }
 
@@ -85,6 +97,14 @@ public class ExportConfigItem {
         this.format = format;
     }
 
+    public String getZoneId() {
+        return zoneId;
+    }
+
+    public void setZoneId(String zoneId) {
+        this.zoneId = zoneId;
+    }
+
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -95,13 +115,14 @@ public class ExportConfigItem {
 
     @Override
     public String toString() {
-        return "ExportItem{" +
+        return "ExportConfigItem{" +
                 "index=" + index +
                 ", enable=" + enable +
                 ", fieldName='" + fieldName + '\'' +
                 ", exportName='" + exportName + '\'' +
                 ", dateType=" + dateType +
                 ", format='" + format + '\'' +
+                ", zoneId='" + zoneId + '\'' +
                 ", defaultValue='" + defaultValue + '\'' +
                 '}';
     }

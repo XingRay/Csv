@@ -76,28 +76,30 @@ public class CsvUtil {
                 }
 
                 for (int j = 0; j < exportItemSize; j++) {
-                    ExportConfigItem exportConfigItem = exportConfigItems.get(j);
-                    String fieldName = exportConfigItem.getFieldName();
+                    ExportConfigItem item = exportConfigItems.get(j);
+                    String fieldName = item.getFieldName();
 
                     Object fieldValue = null;
                     if (fieldNames.contains(fieldName)) {
                         fieldValue = Util.get(t, fieldName, getterCache);
                     }
                     if (fieldValue == null) {
-                        recordItems[j] = exportConfigItem.getDefaultValue();
+                        recordItems[j] = item.getDefaultValue();
                         continue;
                     }
 
-                    String format = exportConfigItem.getFormat();
+                    String format = item.getFormat();
                     if (format == null || format.isBlank()) {
                         recordItems[j] = fieldValue.toString();
                         continue;
                     }
 
-                    if (exportConfigItem.getDateType() == ExportConfigItem.DATA_TYPE_TIME_SECONDS) {
-                        recordItems[j] = Util.secondsToFormattedString((long) fieldValue, format);
-                    } else if (exportConfigItem.getDateType() == ExportConfigItem.DATA_TYPE_TIME_MILLS) {
-                        recordItems[j] = Util.millsToFormattedString((long) fieldValue, format);
+                    if (item.getDateType() == ExportConfigItem.DATA_TYPE_TIME_SECONDS) {
+                        long seconds = (long) fieldValue;
+                        recordItems[j] = Util.secondsToFormattedString(seconds, format, item.getZoneId());
+                    } else if (item.getDateType() == ExportConfigItem.DATA_TYPE_TIME_MILLS) {
+                        long mills = (long) fieldValue;
+                        recordItems[j] = Util.millsToFormattedString(mills, format, item.getZoneId());
                     } else if (fieldValue instanceof Date) {
                         recordItems[j] = Util.toFormattedString((Date) fieldValue, format);
                     } else {
@@ -174,6 +176,11 @@ public class CsvUtil {
             DataType dataTypeAnnotation = field.getAnnotation(DataType.class);
             if (dataTypeAnnotation != null) {
                 item.setDateType(dataTypeAnnotation.value());
+            }
+
+            ZoneId zoneIdAnnotation = field.getAnnotation(ZoneId.class);
+            if (zoneIdAnnotation != null) {
+                item.setZoneId(zoneIdAnnotation.value());
             }
 
             Default defaultAnnotation = field.getAnnotation(Default.class);

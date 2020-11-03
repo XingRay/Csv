@@ -4,7 +4,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Map;
 
 public class Util {
     public static Object get(Object o, String fieldName, Map<String, Method> getterCache) {
@@ -85,16 +90,20 @@ public class Util {
         return new String(ch);
     }
 
-    public static String secondsToFormattedString(long seconds, String format) {
-        return millsToFormattedString(seconds * 1000, format);
+    public static String secondsToFormattedString(long seconds, String format, String zoneId) {
+        return millsToFormattedString(seconds * 1000, format, zoneId);
     }
 
-    public static String millsToFormattedString(long mills, String format) {
-        Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GTM"));
-        calendar.setTimeInMillis(mills);
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        return dateFormat.format(calendar.getTime());
+    public static String millsToFormattedString(long mills, String format, String zoneId) {
+        Instant instant = Instant.ofEpochMilli(mills);
+        ZoneId zoneId1;
+        if (zoneId == null) {
+            zoneId1 = ZoneId.of("+00:00");
+        } else {
+            zoneId1 = ZoneId.of(zoneId);
+        }
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId1);
+        return zonedDateTime.format(DateTimeFormatter.ofPattern(format));
     }
 
     public static String toFormattedString(Date date, String format) {
