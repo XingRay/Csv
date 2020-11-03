@@ -4,10 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Map;
+import java.util.*;
 
 public class Util {
     public static Object get(Object o, String fieldName, Map<String, Method> getterCache) {
@@ -37,7 +34,7 @@ public class Util {
      *
      * @param fieldName 属性名
      */
-    private static Method getGetter(Class<?> cls, String fieldName) {
+    public static Method getGetter(Class<?> cls, String fieldName) {
         Field field = null;
         try {
             field = cls.getDeclaredField(fieldName);
@@ -49,16 +46,7 @@ public class Util {
         }
 
         Class<?> type = field.getType();
-        String methodName;
-        if (type == Boolean.class || type == boolean.class) {
-            if (fieldName.startsWith("is")) {
-                methodName = fieldName;
-            } else {
-                methodName = "is" + captain(fieldName);
-            }
-        } else {
-            methodName = "get" + captain(fieldName);
-        }
+        String methodName = getGetterName(fieldName, type);
 
         try {
             return cls.getMethod(methodName);
@@ -66,6 +54,27 @@ public class Util {
             System.out.println("method: " + methodName + " not found in class: " + cls.getCanonicalName());
         }
         return null;
+    }
+
+    public static String getGetterName(String fieldName, Class<?> type) {
+        String methodName;
+        if (type == boolean.class) {
+            if (fieldName.startsWith("is") && fieldName.length() > 2 && Character.isUpperCase(fieldName.charAt(2))) {
+                methodName = fieldName;
+            } else {
+                methodName = "is" + captain(fieldName);
+            }
+        } else if (type == Boolean.class) {
+            if (fieldName.startsWith("is") && fieldName.length() > 2 && Character.isUpperCase(fieldName.charAt(2))) {
+                methodName = "get" + captain(fieldName.substring(2));
+            } else {
+                methodName = "get" + captain(fieldName);
+            }
+        } else {
+            methodName = "get" + captain(fieldName);
+        }
+
+        return methodName;
     }
 
     private static String captain(String str) {
@@ -82,6 +91,7 @@ public class Util {
 
     public static String millsToFormattedString(long mills, String format) {
         Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GTM"));
         calendar.setTimeInMillis(mills);
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(calendar.getTime());
